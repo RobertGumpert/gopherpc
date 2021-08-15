@@ -1,4 +1,16 @@
 # Parse Request.
+## Struct
+
+```go
+type Request struct {
+	Jsonrpc        string      `json:"jsonrpc"`
+	Method         string      `json:"method"`
+	Params         interface{} `json:"params"`
+	ID             interface{} `json:"id"`
+}
+```
+
+## Description
 
 After you have received the byte array containing the body, pass them as an argument. If the parsing was successful, then the function will return you only the "request" variable, otherwise it will return the "response" variable already in the error representation format according to the JSON-RPC standard, and also return an error. After that, call the parsing method of the value that must be represented by the "parameters" key, passing a pointer to the object as an argument.
 
@@ -109,7 +121,34 @@ if err != nil {
 ```
 
 # Parse Response.
+## Struct
 
+```go
+
+type IResponse interface {
+	Marshall() ([]byte, error)
+	String() (string, error)
+}
+
+type response struct {
+	Jsonrpc string      `json:"jsonrpc"`
+	Result  interface{} `json:"result"`
+	ID      interface{} `json:"id"`
+}
+
+type errorContext struct {
+	Code    ErrCode `json:"code"`
+	Message string  `json:"message"`
+}
+
+type errorResponse struct {
+	Jsonrpc string        `json:"jsonrpc"`
+	Error   *errorContext `json:"error"`
+	ID      interface{}   `json:"id"`
+}
+```
+
+## Description
 Before parsing the answer, you can use the "IsResponse()" function to find out if the answer is a normal answer or an error.
 
 ```go
