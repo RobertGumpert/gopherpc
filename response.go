@@ -5,7 +5,6 @@ import (
 	"regexp"
 )
 
-
 type IResponse interface {
 	Marshall() ([]byte, error)
 }
@@ -28,7 +27,7 @@ func IsResponse(bts []byte) bool {
 	return !isError
 }
 
-func ParseResponse(bts []byte, userTypeResult ...interface{}) (*response, error) {
+func ParseResponse(bts []byte) (*response, error) {
 	var (
 		resp = new(response)
 	)
@@ -36,16 +35,20 @@ func ParseResponse(bts []byte, userTypeResult ...interface{}) (*response, error)
 	if err != nil {
 		return nil, err
 	}
-	if resultBytes, err := json.Marshal(resp.Result); err != nil {
-		return nil, err
+	return resp, nil
+}
+
+func (this *response) ParseResult(userTypeResult interface{}) error {
+	if resultBytes, err := json.Marshal(this.Result); err != nil {
+		return err
 	} else {
-		if resp.Result != nil {
-			if err := json.Unmarshal([]byte(resultBytes), userTypeResult[0]); err != nil {
-				return nil, err
+		if this.Result != nil {
+			if err := json.Unmarshal([]byte(resultBytes), userTypeResult); err != nil {
+				return err
 			} else {
-				resp.Result = userTypeResult[0]
+				this.Result = userTypeResult
 			}
 		}
 	}
-	return resp, nil
+	return nil
 }

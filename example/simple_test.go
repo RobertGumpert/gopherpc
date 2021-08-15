@@ -32,16 +32,20 @@ func TestSimpleFlow(t *testing.T) {
 	//
 	// Server -->
 	//
-	request, _, err := gopherpc.ParseRequest(bts, new(Data))
+	request, response, err := gopherpc.ParseRequest(bts)
+	if err != nil {
+		t.Fatal(err)
+	}
+	response, err = request.ParseParams(new(Data))
 	if err != nil {
 		t.Fatal(err)
 	}
 	request.Params.(*Data).Params = "Hello, from server!"
-	response, err := request.Response(request.Params)
+	response, err = request.Response(request.Params)
 	if err != nil {
 		t.Fatal(err)
 	}
-	bts, err = response.Marshall()
+	bts, err := response.Marshall()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -50,10 +54,11 @@ func TestSimpleFlow(t *testing.T) {
 	//
 	is := gopherpc.IsResponse(bts)
 	if is {
-		response, err := gopherpc.ParseResponse(bts, new(Data))
+		response, err := gopherpc.ParseResponse(bts)
 		if err != nil {
 			t.Fatal(err)
 		}
+		err = response.ParseResult(new(Data))
 		log.Println(response.Result.(*Data).Params)
 	} else {
 		t.Fatal("Non response")

@@ -16,23 +16,12 @@ type Request struct {
 	isNotification bool
 }
 
-func ParseRequest(bts []byte, userTypeParams ...interface{}) (*Request, IResponse, error) {
+func ParseRequest(bts []byte) (*Request, IResponse, error) {
 	var (
 		request = new(Request)
 	)
 	if err := json.Unmarshal(bts, request); err != nil {
 		return nil, Error(ErrParse, err.Error()), err
-	}
-	if paramsBytes, err := json.Marshal(request.Params); err != nil {
-		return nil, Error(ErrParse, err.Error()), err
-	} else {
-		if request.Params != nil {
-			if err := json.Unmarshal([]byte(paramsBytes), userTypeParams[0]); err != nil {
-				return nil, Error(ErrParse, err.Error()), err
-			} else {
-				request.Params = userTypeParams[0]
-			}
-		}
 	}
 	if request.ID == nil {
 		request.isNotification = true
@@ -40,6 +29,21 @@ func ParseRequest(bts []byte, userTypeParams ...interface{}) (*Request, IRespons
 		request.isNotification = false
 	}
 	return request, nil, nil
+}
+
+func (this *Request) ParseParams(userTypeParams interface{}) (IResponse, error) {
+	if paramsBytes, err := json.Marshal(this.Params); err != nil {
+		return Error(ErrParse, err.Error()), err
+	} else {
+		if this.Params != nil {
+			if err := json.Unmarshal([]byte(paramsBytes), userTypeParams); err != nil {
+				return Error(ErrParse, err.Error()), err
+			} else {
+				this.Params = userTypeParams
+			}
+		}
+	}
+	return nil, nil
 }
 
 func (this *Request) Response(result interface{}) (IResponse, error) {
