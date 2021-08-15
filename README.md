@@ -98,7 +98,7 @@ if err != nil {
             false,
             amqp.Publishing{
                 ContentType: "text/plain",
-                Body:        []byte(body),
+                Body:        bts,
             },
         )
         ...
