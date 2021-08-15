@@ -7,16 +7,39 @@ import (
 
 type IResponse interface {
 	Marshall() ([]byte, error)
+	String() (string, error)
 }
 
 type response struct {
 	Jsonrpc string      `json:"jsonrpc"`
 	Result  interface{} `json:"result"`
 	ID      interface{} `json:"id"`
+	//
+	bytesRepresentation  []byte `json:"-"`
+	stringRepresentation string `json:"-"`
 }
 
 func (this *response) Marshall() ([]byte, error) {
-	return json.Marshal(this)
+	if this.bytesRepresentation == nil ||
+		len(this.bytesRepresentation) == 0 {
+		bts, err := json.Marshal(this)
+		if err != nil {
+			return nil, err
+		}
+		this.bytesRepresentation = bts
+	}
+	return this.bytesRepresentation, nil
+}
+
+func (this *response) String() (string, error) {
+	if this.stringRepresentation == "" {
+		_, err := this.Marshall()
+		if err != nil {
+			return "", err
+		}
+		this.stringRepresentation = string(this.bytesRepresentation)
+	}
+	return this.stringRepresentation, nil
 }
 
 func IsResponse(bts []byte) bool {

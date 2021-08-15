@@ -11,10 +11,32 @@ type errorResponse struct {
 	Jsonrpc string        `json:"jsonrpc"`
 	Error   *errorContext `json:"error"`
 	ID      interface{}   `json:"id"`
+	//
+	bytesRepresentation  []byte `json:"-"`
+	stringRepresentation string `json:"-"`
 }
 
 func (this *errorResponse) Marshall() ([]byte, error) {
-	return json.Marshal(this)
+	if this.bytesRepresentation == nil ||
+		len(this.bytesRepresentation) == 0 {
+		bts, err := json.Marshal(this)
+		if err != nil {
+			return nil, err
+		}
+		this.bytesRepresentation = bts
+	}
+	return this.bytesRepresentation, nil
+}
+
+func (this *errorResponse) String() (string, error) {
+	if this.stringRepresentation == "" {
+		_, err := this.Marshall()
+		if err != nil {
+			return "", err
+		}
+		this.stringRepresentation = string(this.bytesRepresentation)
+	}
+	return this.stringRepresentation, nil
 }
 
 func Error(code ErrCode, message string) IResponse {
