@@ -1,7 +1,10 @@
 package example
 
 import (
+	"encoding/json"
+	"log"
 	"testing"
+
 	"github.com/RobertGumpert/gopherpc"
 )
 
