@@ -17,7 +17,7 @@ After you have received the byte array containing the body, pass them as an argu
 ```go
 
 //
-// Client
+// Server
 //
 
 type Data struct {
